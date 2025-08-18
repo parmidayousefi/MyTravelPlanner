@@ -2,9 +2,6 @@ name: Android Build
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
 
 jobs:
   build:
@@ -12,10 +9,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
@@ -29,12 +26,6 @@ jobs:
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
-        with:
-          name: MyTravelPlanner-APK
-          path: MyTravelPlanner_v3/app/build/outputs/apk/debug/app-debug.apk
-
-          path: MyTravelPlanner_v3/app/build/outputs/apk/debug/app-debug.apk
-        uses: actions/upload-artifact@v3
         with:
           name: MyTravelPlanner-APK
           path: MyTravelPlanner_v3/app/build/outputs/apk/debug/app-debug.apk
