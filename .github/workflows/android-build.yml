@@ -1,3 +1,5 @@
+name: Android Build
+
 on:
   workflow_dispatch:
   push:
@@ -26,9 +28,11 @@ jobs:
         run: ./gradlew assembleDebug
 
       - name: Upload APK artifact
-        uses: actions/upload-artifact@v4 # ✅ نسخه جدید
+        uses: actions/upload-artifact@v4
         with:
           name: MyTravelPlanner-APK
+          path: MyTravelPlanner_v3/app/build/outputs/apk/debug/app-debug.apk
+
           path: MyTravelPlanner_v3/app/build/outputs/apk/debug/app-debug.apk
         uses: actions/upload-artifact@v3
         with:
