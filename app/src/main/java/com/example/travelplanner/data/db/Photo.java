@@ -1,1 +1,0 @@
-package com.example.travelplanner.data.db; import androidx.room.*; @Entity(tableName = "photos") public class Photo { @PrimaryKey(autoGenerate = true) public long id; @ColumnInfo(name="trip_id") public long tripId; public String storagePath; public String localUri; }
