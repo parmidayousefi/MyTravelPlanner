@@ -1,4 +1,4 @@
-name: Android Build (cached & auto-detect)
+name: Android Build
 
 on:
   workflow_dispatch:
@@ -6,6 +6,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -16,48 +17,25 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Cache Gradle wrapper dists
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/wrapper/dists
-          key: ${{ runner.os }}-gradle-dists-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
-
-      - name: Cache Gradle caches
-        uses: actions/cache@v4
+      # 📌 اضافه کردن Cache برای Gradle
+      - name: Cache Gradle
+        uses: actions/cache@v3
         with:
           path: |
             ~/.gradle/caches
-            ~/.gradle/caches/modules-2
-          key: ${{ runner.os }}-gradle-cache-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
-      - name: Find gradlew file
-        id: find_gradlew
-        run: |
-          set -e
-          G=$(find . -type f -name gradlew | head -n 1 || true)
-          if [ -z "$G" ]; then
-            echo "no_gradlew=true" >> $GITHUB_OUTPUT
-            echo "No gradlew found in repository. Upload gradlew and gradle/wrapper files." >&2
-            exit 1
-          fi
-          WD=$(dirname "$G")
-          echo "found_gradlew=${G#./}" >> $GITHUB_OUTPUT
-          echo "workdir=${WD#./}" >> $GITHUB_OUTPUT
-          echo "Found gradlew at: $G, workdir: $WD"
-
-      - name: Make gradlew executable
-        if: steps.find_gradlew.outputs.no_gradlew != 'true'
-        run: chmod +x "${{ steps.find_gradlew.outputs.found_gradlew }}"
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
 
       - name: Build Debug APK
-        if: steps.find_gradlew.outputs.no_gradlew != 'true'
-        working-directory: ${{ steps.find_gradlew.outputs.workdir }}
         run: ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK artifact
-        if: success() && steps.find_gradlew.outputs.no_gradlew != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: MyTravelPlanner-APK
-          path: ${{ steps.find_gradlew.outputs.workdir }}/app/build/outputs/apk/debug/app-debug.apk
+          path: app/build/outputs/apk/debug/app-debug.apk
