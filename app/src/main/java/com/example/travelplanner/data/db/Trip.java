@@ -1,0 +1,1 @@
+package com.example.travelplanner.data.db; import androidx.room.*; @Entity(tableName = "trips") public class Trip { @PrimaryKey(autoGenerate = true) public long id; public String uid; public String title; @ColumnInfo(name="start_date") public String startDate; @ColumnInfo(name="end_date") public String endDate; public String notes; }
