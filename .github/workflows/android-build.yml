@@ -1,4 +1,4 @@
-name: Android Build
+name: Android Build (auto-detect gradlew)
 
 on:
   workflow_dispatch:
@@ -6,7 +6,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -17,16 +16,33 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./MyTravelPlanner-main/gradlew
+      - name: Find gradlew file
+        id: find_gradlew
+        run: |
+          set -e
+          # find the first gradlew in the repo (search from repo root)
+          G=$(find . -type f -name gradlew | head -n 1 || true)
+          if [ -z "$G" ]; then
+            echo "No gradlew found in repository. Please upload gradlew and gradle/wrapper files." >&2
+            exit 1
+          fi
+          # compute working directory (folder that contains gradlew)
+          WD=$(dirname "$G")
+          echo "found_gradlew=$G" >> $GITHUB_OUTPUT
+          echo "workdir=$WD" >> $GITHUB_OUTPUT
+          echo "Found gradlew at: $G, workdir: $WD"
+
+      - name: Make gradlew executable
+        run: chmod +x "${{ steps.find_gradlew.outputs.found_gradlew }}"
 
       - name: Build Debug APK
-        working-directory: MyTravelPlanner-main
+        working-directory: "${{ steps.find_gradlew.outputs.workdir }}"
         run: ./gradlew assembleDebug
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: MyTravelPlanner-APK
-          path: MyTravelPlanner-main/app/build/outputs/apk/debug/app-debug.apk
+          path: ${{ steps.find_gradlew.outputs.workdir }}/app/build/outputs/apk/debug/app-debug.apk
+
 
