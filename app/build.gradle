@@ -2,33 +2,30 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 
 android {
-    signingConfigs {
-        release {
-            signingConfig signingConfigs.release
-            storeFile file("myrelease.keystore")
-            storePassword "123456"
-            keyAlias "mykey"
-            keyPassword "123456"
-        }
-    }
-
     namespace 'com.example.travelplanner'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.example.travelplanner"
         minSdk 21
-        targetSdk 33
+        targetSdk 34
         versionCode 3
         versionName "3.0"
     }
-    buildTypes { release {
-            signingConfig signingConfigs.release minifyEnabled false } }
+    
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
 }
+
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'com.google.android.material:material:1.11.0'
